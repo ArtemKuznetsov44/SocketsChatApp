@@ -7,6 +7,7 @@ PORT = 1234  # from 0 to 65355, as far as I remember
 clients_socket_username = {}
 clients_username_socket = {}
 
+
 # The main socket logic is, who send, those will receive!
 # Sending for socket is not the same sending as well. So when we send, we write data into the current socket buffer.
 # One socket - one buffer, so who send, those can read this data from buffer
@@ -19,7 +20,6 @@ def send_to_single_client(client, message):
 
 def send_to_all_clients(message):
     """ Method to send message to all clients"""
-
     for client, _ in clients_socket_username.items():
         send_to_single_client(client, message)
 
@@ -31,11 +31,15 @@ def listen_for_messages(client, username):
 
         message = client.recv(2048).decode('utf-8').strip()
 
-        if message:
-            message_for_all = username + '~' + message
-            send_to_all_clients(message_for_all)
+        if message and len(message.split('~')) == 2:
+            recipient, context = message.split('~')[0].strip('@'), message.split('~')[1]
+            if recipient == 'broadcast':
+                send_to_all_clients(f'<--> [BROADCAST from "{username}]~{context}"')
+            elif recipient in clients_username_socket:
+                recipient_socket = clients_username_socket[recipient]
+                send_to_single_client(recipient_socket, f'-> [From {username} to you personal]~{context}')
         else:
-            pass
+            send_to_single_client(client, '----> [!_SERVER WARNING_!]~Message has invalid format...')
 
 
 def client_handler(client, address):
@@ -49,9 +53,10 @@ def client_handler(client, address):
 
         if username:
             clients_socket_username[client] = username
+            clients_username_socket[username] = client
             # clients_username_socket[username] = client
             print('Username for client with address {} was set successfully: {}'.format(address, username))
-            send_to_all_clients(f'SERVER~{username} joined to the chat!')
+            send_to_all_clients(f'----> [SERVER~{username} joined to the chat!')
             break
         # else:
         #     print('Client send invalid username')

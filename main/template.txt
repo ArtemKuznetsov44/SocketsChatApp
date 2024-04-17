@@ -1,0 +1,8 @@
+1. Server message to all clients:
+SERVER~message
+
+2. Client send message to all clients:
+message
+
+3. Client send message to another client directly:
+@<username>~message
