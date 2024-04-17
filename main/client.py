@@ -9,14 +9,18 @@ PORT = 1234
 def server_listening(client):
     while True:
         message = client.recv(2048).decode('utf-8')
+
         if message:
-            sender_name, message_context = message.split('~')[0], message.split('~')[1]
-            print(f'[{sender_name}] {message_context}')
+            print(f'{message}')
+            # sender_name, message_context = message.split('~')[0], message.split('~')[1]
+            # Message from server:
+            # print(f'[{sender_name}]~{message_context}')
 
 
 def sending_message_to_server(client):
+    """ Send message to server from client input """
     while True:
-        message = input('Message to send: ').strip()
+        message = input().strip()
         if message:
             client.sendall(message.encode())
         else:
@@ -27,6 +31,11 @@ def start_communication(client):
     while True:
         username = input('Enter username: ')
         if len(username := username.strip()):
+
+            print("=== Instruction ===\n" +
+                  '1. To send broadcast message: @broadcast~context_of_your_message\n'+
+                  '2. To send message to single client directly: @client_name~context_of_your_message\n'+
+                  '='*20)
             client.sendall(username.encode())
             break
 
