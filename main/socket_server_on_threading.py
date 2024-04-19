@@ -26,7 +26,7 @@ def send_to_all_clients(message):
 
 def listen_for_messages(client, username):
     """ Here server listen client messages """
-
+    dictionary = {}
     while True:
 
         message = client.recv(2048).decode('utf-8').strip()
